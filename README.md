@@ -19,7 +19,6 @@ npm i DonovanDMC/eris#everything
 <ul>
 <li><a href="https://github.com/LJNeon">@LJNeon</a> [<a href="https://github.com/abalabahaha/eris/pull/1227">Standardized parsing errors</a>]</li>
 <li><a href="https://github.com/Loliticos">@Loliticos</a> [<a href="https://github.com/abalabahaha/eris/pull/1275">Guild Scheduled Events</a>]</li>
-<li><a href="https://github.com/DonovanDMC">@DonovanDMC</a> [<a href="https://github.com/abalabahaha/eris/pull/1277">make id optional for some events</a>]</li>
 </ul>
 </details>
 
@@ -40,6 +39,7 @@ npm i DonovanDMC/eris#everything
 <li>(Merged) <a href="https://github.com/bsian03">@bsian03</a> [<a href="https://github.com/abalabahaha/eris/pull/1261">Warn when invalid intent is supplied</a>]</li>
 <li>(Merged) <a href="https://github.com/DonovanDMC">@DonovanDMC</a> [<a href="https://github.com/abalabahaha/eris/pull/1271">Several Constants Changes/Additions</a>]</li>
 <li>(Out Of Date) <a href="https://github.com/eritbh">@eritbh</a> [<a href="https://github.com/abalabahaha/eris/pull/1276">Use process warnings for deprecations</a>]</li>
+<li><a href="https://github.com/DonovanDMC">@DonovanDMC</a> [<a href="https://github.com/abalabahaha/eris/pull/1277">make id optional for some events</a>]</li>
 <li>(Merged) <a href="https://github.com/iiFDCT">@iiFDCT</a> [<a href="https://github.com/abalabahaha/eris/pull/1278">Role icon support</a>]</li>
 <li>(Merged) <a href="https://github.com/bsian03">@bsian03</a> [<a href="https://github.com/abalabahaha/eris/pull/1279">Discord API V9</a>]</li>
 <li>(Merged) <a href="https://github.com/Catboi8">@Catboi8</a> [<a href="https://github.com/abalabahaha/eris/pull/1280">Support Interactions</a>]</li>
