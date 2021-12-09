@@ -19,6 +19,8 @@ npm i DonovanDMC/eris#everything
 <ul>
 <li><a href="https://github.com/LJNeon">@LJNeon</a> [<a href="https://github.com/abalabahaha/eris/pull/1227">Standardized parsing errors</a>]</li>
 <li><a href="https://github.com/Loliticos">@Loliticos</a> [<a href="https://github.com/abalabahaha/eris/pull/1275">Guild Scheduled Events</a>]</li>
+<li><a href="https://github.com/DonovanDMC">@DonovanDMC</a> [<a href="https://github.com/abalabahaha/eris/pull/1309">Various Interactions Changes</a>]</li>
+<li><a href="https://github.com/frobinsonj ">@frobinsonj </a> [<a href="https://github.com/abalabahaha/eris/pull/1311">Fix typing for `Message.createThreadWithMessage`</a>]</li>
 </ul>
 </details>
 
