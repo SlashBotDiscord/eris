@@ -57,6 +57,7 @@ declare namespace Eris {
   type DefaultNotifications = Constants["DefaultMessageNotificationLevels"][keyof Constants["DefaultMessageNotificationLevels"]];
   type ExplicitContentFilter = Constants["ExplicitContentFilterLevels"][keyof Constants["ExplicitContentFilterLevels"]];
   type GuildEventEntityTypes = Constants["GuildEventEntityTypes"][keyof Constants["GuildEventEntityTypes"]];
+  type GuildEventPrivacyLevel = Constants["GuildEventPrivacyLevel"][keyof Constants["GuildEventPrivacyLevel"]];
   type GuildEventStatus = Constants["GuildEventStatus"][keyof Constants["GuildEventStatus"]];
   type GuildFeatures = Constants["GuildFeatures"][number];
   type NSFWLevel = Constants["GuildNSFWLevels"][keyof Constants["GuildNSFWLevels"]];
@@ -1429,16 +1430,20 @@ declare namespace Eris {
     user: PartialUser;
   }
   interface GuildEventMetadata {
-    speakerIDs?: string[];
     location?: string;
   }
   interface GuildEventOptions {
-    channelID: string;
     name: string;
-    privacyLevel: number;
-    scheduledStartTime: number;
+    channelID: string;
+    entityMetadata: GuildEventMetadata;
+    privacyLevel: GuildEventPrivacyLevel;
+    scheduledStartTime: Date;
+    scheduledEndTime: Date;
     description: string;
-    entityType: number;
+    entityType: GuildEventEntityTypes;
+  }
+  interface GuildEventEditOptions extends GuildEventOptions {
+    status: GuildEventStatus;
   }
   interface Constants {
     GATEWAY_VERSION: 9;
@@ -1666,9 +1671,10 @@ declare namespace Eris {
       directMessages:         4096;
       directMessageReactions: 8192;
       directMessageTyping:    16384;
-      allNonPrivileged:       32509;
+      guildScheduledEvents:   65536;
+      allNonPrivileged:       98045;
       allPrivileged:          258;
-      all:                    32767;
+      all:                    98303;
     };
     InteractionResponseTypes: {
       PONG:                                    1;
@@ -1926,6 +1932,10 @@ declare namespace Eris {
       STAGE_INSTANCE: 1;
       VOICE: 2;
       LOCATION: 3;
+    };
+    GuildEventPrivacyLevel: {
+      PUBLIC: 1;
+      GUILD_ONLY: 2;
     };
     WebhookTypes: {
       INCOMING:         1;
@@ -2258,7 +2268,7 @@ declare namespace Eris {
     deleteGuildCommand(guildID: string, commandID: string): Promise<void>;
     deleteGuildDiscoverySubcategory(guildID: string, categoryID: string, reason?: string): Promise<void>;
     deleteGuildEmoji(guildID: string, emojiID: string, reason?: string): Promise<void>;
-    deleteGuildEvent(eventID: string): Promise<void>;
+    deleteGuildEvent(guildID: string, eventID: string): Promise<void>;
     deleteGuildIntegration(guildID: string, integrationID: string): Promise<void>;
     deleteGuildSticker(guildID: string, stickerID: string, reason?: string): Promise<void>;
     deleteGuildTemplate(guildID: string, code: string): Promise<GuildTemplate>;
@@ -2300,7 +2310,7 @@ declare namespace Eris {
       options: { name?: string; roles?: string[] },
       reason?: string
     ): Promise<Emoji>;
-    editGuildEvent(event: GuildEventOptions, eventID: string): Promise<GuildEvent>;
+    editGuildEvent(event: GuildEventEditOptions, eventID: string): Promise<GuildEvent>;
     editGuildIntegration(guildID: string, integrationID: string, options: IntegrationOptions): Promise<void>;
     editGuildMember(guildID: string, memberID: string, options: MemberOptions, reason?: string): Promise<Member>;
     editGuildSticker(guildID: string, stickerID: string, options?: EditStickerOptions, reason?: string): Promise<Sticker>;
@@ -2404,7 +2414,7 @@ declare namespace Eris {
     getRESTGuildChannels(guildID: string): Promise<AnyGuildChannel[]>;
     getRESTGuildEmoji(guildID: string, emojiID: string): Promise<Emoji>;
     getRESTGuildEmojis(guildID: string): Promise<Emoji[]>;
-    getRESTGuildEvent(eventID: string): Promise<GuildEvent>;
+    getRESTGuildEvent(guildID: string, eventID: string): Promise<GuildEvent>;
     getRESTGuildMember(guildID: string, memberID: string): Promise<Member>;
     getRESTGuildMembers(guildID: string, options?: GetRESTGuildMembersOptions): Promise<Member[]>;
     /** @deprecated */
@@ -2464,6 +2474,8 @@ declare namespace Eris {
     leaveGuild(guildID: string): Promise<void>;
     leaveThread(channelID: string, userID?: string): Promise<void>;
     leaveVoiceChannel(channelID: string): void;
+    listGuildEvents(guildID: string, withUserCount: boolean): Promise<Array<GuildEvent>>;
+    listGuildEventUsers(guildID: string, eventID: string): void;
     off<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
     off(event: string, listener: (...args: any[]) => void): this;
     once<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
@@ -2759,6 +2771,7 @@ declare namespace Eris {
     getRESTChannels(): Promise<AnyGuildChannel[]>;
     getRESTEmoji(emojiID: string): Promise<Emoji>;
     getRESTEmojis(): Promise<Emoji[]>;
+    getRESTEvent(eventID: string): Promise<GuildEvent>;
     getRESTMember(memberID: string): Promise<Member>;
     getRESTMembers(options?: GetRESTGuildMembersOptions): Promise<Member[]>;
     /** @deprecated */
@@ -2776,6 +2789,8 @@ declare namespace Eris {
     kickMember(userID: string, reason?: string): Promise<void>;
     leave(): Promise<void>;
     leaveVoiceChannel(): void;
+    listEvents(withUserCount: boolean): Promise<Array<GuildEvent>>;
+    listEventUsers(eventID: string): void;
     permissionsOf(memberID: string | Member | MemberRoles): Permission;
     pruneMembers(options?: PruneMemberOptions): Promise<number>;
     removeMemberRole(memberID: string, roleID: string, reason?: string): Promise<void>;
@@ -3656,17 +3671,16 @@ declare namespace Eris {
     entityType: GuildEventEntityTypes;
     guildID: string;
     id: string;
-    image: string;
     name: string;
-    privacyLevel: number;
+    privacyLevel: GuildEventPrivacyLevel;
     scheduledEndTime: number;
     scheduledStartTime: number;
-    skuIDs: string[];
-    skus: string[];
     status: GuildEventStatus;
+    creator?: User;
     userCount?: number;
     delete(): Promise<void>;
-    edit(event: GuildEventOptions): Promise<GuildEvent>;
+    edit(event: GuildEventEditOptions): Promise<GuildEvent>;
+    listUsers(): void;
   }
 }
 
