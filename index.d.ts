@@ -632,6 +632,7 @@ declare namespace Eris {
   }
   interface OldMember {
     avatar: string | null;
+    communicationDisabledUntil: number | null;
     nick: string | null;
     pending?: boolean;
     premiumSince: number;
@@ -1021,6 +1022,7 @@ declare namespace Eris {
   }
   interface MemberOptions {
     channelID?: string | null;
+    communicationDisabledUntil?: Date | null;
     deaf?: boolean;
     mute?: boolean;
     nick?: string | null;
@@ -1808,10 +1810,11 @@ declare namespace Eris {
       useExternalStickers:     137438953472n;
       sendMessagesInThreads:   274877906944n;
       startEmbeddedActivities: 549755813888n;
-      allGuild:                10670833854n;
+      moderateMembers:         1099511627776n;
+      allGuild:                1110182461630n;
       allText:                 518349388881n;
       allVoice:                554385278737n;
-      all:                     1082331758591n;
+      all:                     2181843386367n;
     };
     PremiumTiers: {
       NONE:   0;
@@ -3039,6 +3042,7 @@ declare namespace Eris {
     bannerURL: string | null;
     bot: boolean;
     clientStatus?: ClientStatus;
+    communicationDisabledUntil: number | null;
     createdAt: number;
     defaultAvatar: string;
     defaultAvatarURL: string;
