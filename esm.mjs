@@ -52,11 +52,11 @@ export const {
   ThreadChannel,
   ThreadMember,
   UnavailableGuild,
-  UnknownInteraction,
   User,
   VERSION,
   VoiceChannel,
   VoiceConnection,
   VoiceConnectionManager,
-  VoiceState
+  VoiceState,
+  GuildEvent
 } = Eris;
