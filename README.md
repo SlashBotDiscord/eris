@@ -17,10 +17,24 @@ npm i DonovanDMC/eris#everything
 <details>
 <summary>Currently Included</summary>
 <ul>
+<li><a href="https://github.com/molenzwiebel">@molenzwiebel</a> [<a href="https://github.com/abalabahaha/eris/pull/1193">Allow configuring RequestHandler to use HTTP instead of HTTPS</a>]</li>
 <li><a href="https://github.com/LJNeon">@LJNeon</a> [<a href="https://github.com/abalabahaha/eris/pull/1227">Standardized parsing errors</a>]</li>
 <li><a href="https://github.com/Loliticos">@Loliticos</a> [<a href="https://github.com/abalabahaha/eris/pull/1275">Guild Scheduled Events</a>]</li>
-<li><a href="https://github.com/DonovanDMC">@DonovanDMC</a> [<a href="https://github.com/abalabahaha/eris/pull/1309">Various Interactions Changes</a>]</li>
-<li><a href="https://github.com/frobinsonj ">@frobinsonj </a> [<a href="https://github.com/abalabahaha/eris/pull/1311">Fix typing for `Message.createThreadWithMessage`</a>]</li>
+<li><a href="https://github.com/bsian03">@bsian03</a> [<a href="https://github.com/abalabahaha/eris/pull/1305">fix(typings): add static keyword for Interaction.from</a>]</li>
+<li><a href="https://github.com/DonovanDMC">@DonovanDMC</a> [<a href="https://github.com/abalabahaha/eris/pull/1309">refactor(interactions): Redo types and remove unnecessary data</a>]</li>
+<li><a href="https://github.com/bsian03">@bsian03</a> [<a href="https://github.com/abalabahaha/eris/pull/1314">fix(interactions): Missing file redirect in createMessage</a>]</li>
+<li><a href="https://github.com/bsian03">@bsian03</a> [<a href="https://github.com/abalabahaha/eris/pull/1318">fix(Member): Parse Member#premiumSince to timestamp</a>]</li>
+<li><a href="https://github.com/james58899">@james58899</a> [<a href="https://github.com/abalabahaha/eris/pull/1323">Fix bitwise overflow</a>]</li>
+<li><a href="https://github.com/bsian03">@bsian03</a> [<a href="https://github.com/abalabahaha/eris/pull/1325">fix(slash): Snake case defaultPermissions to payload</a>]</li>
+<li><a href="https://github.com/xaxim">@xaxim</a> [<a href="https://github.com/abalabahaha/eris/pull/1328">Allows multiple channel position changes in a single request</a>]</li>
+<li><a href="https://github.com/DonovanDMC">@DonovanDMC</a> [<a href="https://github.com/abalabahaha/eris/pull/1335">Interaction Locales</a>]</li>
+</ul>
+</details>
+
+<details>
+<summary>On Hold</summary>
+<ul>
+<li>(Waiting On Updates) <a href="https://github.com/aicushman">@aicushman</a> [<a href="https://github.com/abalabahaha/eris/pull/1319">fix(editChannel): change keys to match API endpoint</a>]</li>
 </ul>
 </details>
 
@@ -47,6 +61,7 @@ npm i DonovanDMC/eris#everything
 <li>(Merged) <a href="https://github.com/Catboi8">@Catboi8</a> [<a href="https://github.com/abalabahaha/eris/pull/1280">Support Interactions</a>]</li>
 <li>(Merged) <a href="https://github.com/bsian03">@bsian03</a> [<a href="https://github.com/abalabahaha/eris/pull/1290">Prevent heartbeat during identify</a>]</li>
 <li>(Merged) <a href="https://github.com/Catboi8">@Catboi8</a> [<a href="https://github.com/abalabahaha/eris/pull/1292">Interactions MinMax</a>]</li>
+<li>(Merged) <a href="https://github.com/frobinsonj ">@frobinsonj</a> [<a href="https://github.com/abalabahaha/eris/pull/1311">Fix typing for `Message.createThreadWithMessage`</a>]</li>
 </ul>
 </details>
 
