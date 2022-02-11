@@ -1901,7 +1901,7 @@ declare namespace Eris {
     };
   }
 
-  // Selfbot
+  // OAuth
   type ConnectionVisibilityTypes = Constants["ConnectionVisibilityTypes"][keyof Constants["ConnectionVisibilityTypes"]];
   interface Connection {
     friend_sync: boolean;
