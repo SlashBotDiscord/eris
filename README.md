@@ -28,6 +28,7 @@ npm i DonovanDMC/eris#everything
 <li><a href="https://github.com/bsian03">@bsian03</a> [<a href="https://github.com/abalabahaha/eris/pull/1325">fix(slash): Snake case defaultPermissions to payload</a>]</li>
 <li><a href="https://github.com/xaxim">@xaxim</a> [<a href="https://github.com/abalabahaha/eris/pull/1328">Allows multiple channel position changes in a single request</a>]</li>
 <li><a href="https://github.com/DonovanDMC">@DonovanDMC</a> [<a href="https://github.com/abalabahaha/eris/pull/1335">Interaction Locales</a>]</li>
+<li><a href="https://github.com/Linker-123">@Linker-123</a> [<a href="https://github.com/abalabahaha/eris/pull/1336">Support modals</a>]</li>
 </ul>
 </details>
 
