@@ -71,7 +71,11 @@ declare namespace Eris {
   // Message
   type ActionRowComponents = Button | SelectMenu | TextInput;
   type Button = InteractionButton | URLButton;
+  type ButtonStyles = Constants["ButtonStyles"][keyof Constants["ButtonStyles"]];
+  type ButtonStyleNormal = Exclude<ButtonStyles, ButtonStyleLink>;
+  type ButtonStyleLink = Constants["ButtonStyles"]["LINK"];
   type Component = ActionRow | ActionRowComponents;
+  type ComponentTypes = Constants["ComponentTypes"][keyof Constants["ComponentTypes"]];
   type ImageFormat = Constants["ImageFormats"][number];
   type MessageContent = string | AdvancedMessageContent;
   type MFALevel = Constants["MFALevels"][keyof Constants["MFALevels"]];
@@ -1163,7 +1167,7 @@ declare namespace Eris {
 
   interface InteractionButton extends ButtonBase {
     custom_id: string;
-    style: Constants["ButtonStyles"][Exclude<keyof Constants["ButtonStyles"], "LINK">];
+    style: ButtonStyleNormal;
   }
   interface MessageActivity {
     party_id?: string;
