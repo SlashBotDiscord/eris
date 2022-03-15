@@ -56,6 +56,9 @@ declare namespace Eris {
   // Guild
   type DefaultNotifications = Constants["DefaultMessageNotificationLevels"][keyof Constants["DefaultMessageNotificationLevels"]];
   type ExplicitContentFilter = Constants["ExplicitContentFilterLevels"][keyof Constants["ExplicitContentFilterLevels"]];
+  type GuildEventEntityTypes = Constants["GuildEventEntityTypes"][keyof Constants["GuildEventEntityTypes"]];
+  type GuildEventPrivacyLevel = Constants["GuildEventPrivacyLevel"][keyof Constants["GuildEventPrivacyLevel"]];
+  type GuildEventStatus = Constants["GuildEventStatus"][keyof Constants["GuildEventStatus"]];
   type GuildFeatures = Constants["GuildFeatures"][number];
   type NSFWLevel = Constants["GuildNSFWLevels"][keyof Constants["GuildNSFWLevels"]];
   type PossiblyUncachedGuild = Guild | Uncached;
@@ -68,45 +71,64 @@ declare namespace Eris {
   // Message
   type ActionRowComponents = Button | SelectMenu;
   type Button = InteractionButton | URLButton;
+  type ButtonStyles = Constants["ButtonStyles"][keyof Constants["ButtonStyles"]];
+  type ButtonStyleNormal = Exclude<ButtonStyles, ButtonStyleLink>;
+  type ButtonStyleLink = Constants["ButtonStyles"]["LINK"];
   type Component = ActionRow | ActionRowComponents;
+  type ComponentTypes = Constants["ComponentTypes"][keyof Constants["ComponentTypes"]];
   type ImageFormat = Constants["ImageFormats"][number];
   type MessageContent = string | AdvancedMessageContent;
   type MFALevel = Constants["MFALevels"][keyof Constants["MFALevels"]];
   type MessageContentEdit = string | AdvancedMessageContentEdit;
   type PossiblyUncachedMessage = Message | { channel: TextableChannel | { id: string; guild?: Uncached }; guildID?: string; id: string };
-  type InteractionType = Constants["ApplicationCommandTypes"][keyof Constants["ApplicationCommandTypes"]];
 
   // Interaction
-  type InteractionDataOptions = InteractionDataOptionsSubCommand | InteractionDataOptionsSubCommandGroup | InteractionDataOptionsWithValue;
-  type InteractionDataOptionsWithValue = InteractionDataOptionsString | InteractionDataOptionsInteger | InteractionDataOptionsBoolean | InteractionDataOptionsUser | InteractionDataOptionsChannel | InteractionDataOptionsRole | InteractionDataOptionsMentionable | InteractionDataOptionsNumber;
-  interface InteractionDataOptionsSubCommand {
+  type InteractionType = Constants["InteractionTypes"][keyof Constants["InteractionTypes"]];
+  type InteractionDataOption = InteractionDataOptionSubCommand | InteractionDataOptionSubCommandGroup | InteractionDataOptionWithValue;
+  type InteractionDataOptionWithValue = InteractionDataOptionString | InteractionDataOptionInteger | InteractionDataOptionBoolean | InteractionDataOptionUser | InteractionDataOptionChannel | InteractionDataOptionRole | InteractionDataOptionMentionable | InteractionDataOptionNumber;
+  interface InteractionDataOptionSubCommand {
     name: string;
     type: Constants["ApplicationCommandOptionTypes"]["SUB_COMMAND"];
-    options?: InteractionDataOptions[];
+    options?: InteractionDataOptionWithValue[];
   }
-  interface InteractionDataOptionsSubCommandGroup {
+  interface InteractionDataOptionSubCommandGroup {
     name: string;
     type: Constants["ApplicationCommandOptionTypes"]["SUB_COMMAND_GROUP"];
-    options: InteractionDataOptions[];
+    // technically these can have zero options, but it will then not show in the client
+    options: (InteractionDataOptionSubCommand | InteractionDataOptionWithValue)[];
   }
-  interface InteractionDataOptionWithValue<T extends (Constants["ApplicationCommandOptionTypes"])[Exclude<keyof Constants["ApplicationCommandOptionTypes"], "SUB_COMMAND" | "SUB_COMMAND_GROUP">] = (Constants["ApplicationCommandOptionTypes"])[Exclude<keyof Constants["ApplicationCommandOptionTypes"], "SUB_COMMAND" | "SUB_COMMAND_GROUP">], V = unknown> {
+  interface InteractionDataOptionGeneric<T extends ApplicationCommandOptionTypeWithValue = ApplicationCommandOptionTypeWithValue, V = unknown> {
     name: string;
     type: T;
     value: V;
     focused?: boolean;
   }
-  type InteractionDataOptionsString = InteractionDataOptionWithValue<Constants["ApplicationCommandOptionTypes"]["STRING"], string>;
-  type InteractionDataOptionsInteger = InteractionDataOptionWithValue<Constants["ApplicationCommandOptionTypes"]["INTEGER"], number>;
-  type InteractionDataOptionsBoolean = InteractionDataOptionWithValue<Constants["ApplicationCommandOptionTypes"]["BOOLEAN"], boolean>;
-  type InteractionDataOptionsUser = InteractionDataOptionWithValue<Constants["ApplicationCommandOptionTypes"]["USER"], string>;
-  type InteractionDataOptionsChannel = InteractionDataOptionWithValue<Constants["ApplicationCommandOptionTypes"]["CHANNEL"], string>;
-  type InteractionDataOptionsRole = InteractionDataOptionWithValue<Constants["ApplicationCommandOptionTypes"]["ROLE"], string>;
-  type InteractionDataOptionsMentionable = InteractionDataOptionWithValue<Constants["ApplicationCommandOptionTypes"]["MENTIONABLE"], string>;
-  type InteractionDataOptionsNumber = InteractionDataOptionWithValue<Constants["ApplicationCommandOptionTypes"]["NUMBER"], number>;
+  type InteractionDataOptionString = InteractionDataOptionGeneric<Constants["ApplicationCommandOptionTypes"]["STRING"], string>;
+  type InteractionDataOptionInteger = InteractionDataOptionGeneric<Constants["ApplicationCommandOptionTypes"]["INTEGER"], number>;
+  type InteractionDataOptionBoolean = InteractionDataOptionGeneric<Constants["ApplicationCommandOptionTypes"]["BOOLEAN"], boolean>;
+  type InteractionDataOptionUser = InteractionDataOptionGeneric<Constants["ApplicationCommandOptionTypes"]["USER"], string>;
+  type InteractionDataOptionChannel = InteractionDataOptionGeneric<Constants["ApplicationCommandOptionTypes"]["CHANNEL"], string>;
+  type InteractionDataOptionRole = InteractionDataOptionGeneric<Constants["ApplicationCommandOptionTypes"]["ROLE"], string>;
+  type InteractionDataOptionMentionable = InteractionDataOptionGeneric<Constants["ApplicationCommandOptionTypes"]["MENTIONABLE"], string>;
+  type InteractionDataOptionNumber = InteractionDataOptionGeneric<Constants["ApplicationCommandOptionTypes"]["NUMBER"], number>;
 
-  interface InteractionOptions {
-    type: Constants["InteractionResponseTypes"][keyof Constants["InteractionResponseTypes"]];
-    data?: unknown;
+  type InteractionResponse = InteractionMessageResponse | InteractionDeferredResponse | InteractionAutocompleteResponse;
+
+  interface InteractionMessageResponse {
+    type: Constants["InteractionResponseTypes"]["CHANNEL_MESSAGE_WITH_SOURCE" | "UPDATE_MESSAGE"];
+    data: InteractionContent;
+  }
+
+  interface InteractionDeferredResponse {
+    type: Constants["InteractionResponseTypes"]["DEFERRED_UPDATE_MESSAGE" | "DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE"];
+    data?: {
+      flags?: number;
+    };
+  }
+
+  interface InteractionAutocompleteResponse {
+    type: Constants["InteractionResponseTypes"]["APPLICATION_COMMAND_AUTOCOMPLETE_RESULT"];
+    data: ApplicationCommandOptionChoice[];
   }
 
   type InteractionContent = Pick<WebhookPayload, "content" | "embeds" | "allowedMentions" | "tts" | "flags" | "components">;
@@ -119,111 +141,76 @@ declare namespace Eris {
     components: ModalContentActionRow[];
   }
   // Application Commands
-  type ApplicationCommandOptions = ApplicationCommandOptionsSubCommand | ApplicationCommandOptionsSubCommandGroup | ApplicationCommandOptionsWithValue;
-  type ApplicationCommandOptionsWithValue = ApplicationCommandOptionsString | ApplicationCommandOptionsInteger | ApplicationCommandOptionsBoolean | ApplicationCommandOptionsUser | ApplicationCommandOptionsChannel | ApplicationCommandOptionsRole | ApplicationCommandOptionsMentionable | ApplicationCommandOptionsNumber;
-  interface ApplicationCommandOptionsSubCommand {
-    type: Constants["ApplicationCommandOptionTypes"]["SUB_COMMAND"];
-    name: string;
-    description: string;
-    options?: ApplicationCommandOptionsWithValue[];
-  }
-  interface ApplicationCommandOptionsSubCommandGroup {
-    type: Constants["ApplicationCommandOptionTypes"]["SUB_COMMAND_GROUP"];
-    name: string;
-    description: string;
-    options?: (ApplicationCommandOptionsSubCommand | ApplicationCommandOptionsWithValue)[];
-  }
-  interface ApplicationCommandOptionChoice<T extends (Constants["ApplicationCommandOptionTypes"])[keyof Pick<Constants["ApplicationCommandOptionTypes"], "STRING" | "INTEGER" | "NUMBER">] | unknown
-  = unknown> {
-    name: string;
-    value: T extends Constants["ApplicationCommandOptionTypes"]["STRING"] ? string :
-      T extends Constants["ApplicationCommandOptionTypes"]["NUMBER"] ? number :
-        T extends Constants["ApplicationCommandOptionTypes"]["INTEGER"] ? number :
-          number | string;
-  }
-  interface ApplicationCommandOptionWithChoices<T extends (Constants["ApplicationCommandOptionTypes"])[keyof Pick<Constants["ApplicationCommandOptionTypes"], "STRING" | "INTEGER" | "NUMBER">]
-  = (Constants["ApplicationCommandOptionTypes"])[keyof Pick<Constants["ApplicationCommandOptionTypes"], "STRING" | "INTEGER" | "NUMBER">]> {
+  type ApplicationCommandType = Constants["ApplicationCommandTypes"][keyof Constants["ApplicationCommandTypes"]];
+  type ApplicationCommandOptionType = Constants["ApplicationCommandOptionTypes"][keyof Constants["ApplicationCommandOptionTypes"]];
+  type ApplicationCommandOptionTypeWithValue = Constants["ApplicationCommandOptionTypes"][Exclude<keyof Constants["ApplicationCommandOptionTypes"], "SUB_COMMAND" | "SUB_COMMAND_GROUP">];
+  type ApplicationCommandOptionTypeWithChoices = Constants["ApplicationCommandOptionTypes"][keyof Pick<Constants["ApplicationCommandOptionTypes"], "STRING" | "INTEGER" | "NUMBER">];
+  type ApplicationCommandOptionTypeWithAutocomplete = Constants["ApplicationCommandOptionTypes"][keyof Pick<Constants["ApplicationCommandOptionTypes"], "STRING" | "INTEGER" | "NUMBER">];
+  type ApplicationCommandOptionTypeWithMinMax = Constants["ApplicationCommandOptionTypes"][keyof Pick<Constants["ApplicationCommandOptionTypes"], "INTEGER" | "NUMBER">];
+
+  type ApplicationCommandOption = ApplicationCommandOptionSubCommand | ApplicationCommandOptionSubCommandGroup | ApplicationCommandOptionWithValue;
+  type ApplicationCommandOptionWithValue = ApplicationCommandOptionString | ApplicationCommandOptionInteger | ApplicationCommandOptionBoolean | ApplicationCommandOptionUser | ApplicationCommandOptionChannel | ApplicationCommandOptionRole | ApplicationCommandOptionMentionable | ApplicationCommandOptionNumber;
+  type ApplicationCommandOptionWithChoices = Extract<ApplicationCommandOptionWithValue, { type: ApplicationCommandOptionTypeWithChoices }>;
+  type ApplicationCommandOptionWithAutocomplete = Extract<ApplicationCommandOptionWithValue, { type: ApplicationCommandOptionTypeWithAutocomplete }>;
+  type ApplicationCommandOptionWithMinMax = Extract<ApplicationCommandOptionWithValue, { type: ApplicationCommandOptionTypeWithMinMax }>;
+
+  interface ApplicationCommandOptionGeneric<T extends ApplicationCommandOptionTypeWithValue> {
     type: T;
     name: string;
     description: string;
     required?: boolean;
-    choices?: ApplicationCommandOptionChoice<T>[];
+  }
+
+  interface ApplicationCommandOptionAutocomplete {
     autocomplete?: boolean;
   }
-  interface ApplicationCommandOptionWithMinMax<T extends (Constants["ApplicationCommandOptionTypes"])[keyof Pick<Constants["ApplicationCommandOptionTypes"], "INTEGER" | "NUMBER">]
-  = (Constants["ApplicationCommandOptionTypes"])[keyof Pick<Constants["ApplicationCommandOptionTypes"], "INTEGER" | "NUMBER">]> {
-    type: T;
+
+  interface ApplicationCommandOptionChoices<T extends ApplicationCommandOptionTypeWithChoices = ApplicationCommandOptionTypeWithChoices> { choices?: ApplicationCommandOptionChoice<T>[] }
+  interface ApplicationCommandOptionChoice<T extends ApplicationCommandOptionTypeWithChoices = ApplicationCommandOptionTypeWithChoices> {
     name: string;
-    description: string;
-    required?: boolean;
-    choices?: ApplicationCommandOptionChoice<T>[];
-    autocomplete?: boolean;
+    value:
+    T extends Constants["ApplicationCommandOptionTypes"]["STRING"] ? string :
+      T extends Constants["ApplicationCommandOptionTypes"]["INTEGER" | "NUMBER"] ? number :
+        string | number;
+  }
+
+  interface ApplicationCommandOptionMinMax {
     min_value?: number;
     max_value?: number;
   }
-  interface ApplicationCommandOption<T extends (Constants["ApplicationCommandOptionTypes"])[Exclude<keyof Constants["ApplicationCommandOptionTypes"], "SUB_COMMAND" | "SUB_COMMAND_GROUP">]> {
-    type: T;
+
+  interface ApplicationCommandOptionSubCommand {
+    type: Constants["ApplicationCommandOptionTypes"]["SUB_COMMAND"];
     name: string;
     description: string;
-    required?: boolean;
+    options?: ApplicationCommandOptionWithValue[];
   }
 
-  // String
-  type ApplicationCommandOptionsString = ApplicationCommandOptionsStringWithAutocomplete | ApplicationCommandOptionsStringWithoutAutocomplete;
-  type ApplicationCommandOptionsStringWithAutocomplete = Omit<ApplicationCommandOptionWithChoices<Constants["ApplicationCommandOptionTypes"]["STRING"]>, "choices">
-  & { autocomplete: true };
-  type ApplicationCommandOptionsStringWithoutAutocomplete = Omit<ApplicationCommandOptionWithChoices<Constants["ApplicationCommandOptionTypes"]["STRING"]>, "autocomplete">
-  & { autocomplete?: false };
-  // Integer
-  type ApplicationCommandOptionsInteger = ApplicationCommandOptionsIntegerWithAutocomplete | ApplicationCommandOptionsIntegerWithoutAutocomplete | ApplicationCommandOptionsIntegerWithMinMax;
-  type ApplicationCommandOptionsIntegerWithAutocomplete = Omit<ApplicationCommandOptionWithChoices<Constants["ApplicationCommandOptionTypes"]["INTEGER"]>, "choices" | "min_value" | "max_value">
-  & { autocomplete: true };
-  type ApplicationCommandOptionsIntegerWithoutAutocomplete = Omit<ApplicationCommandOptionWithChoices<Constants["ApplicationCommandOptionTypes"]["INTEGER"]>, "autocomplete" | "min_value" | "max_value">
-  & {
-    autocomplete?: false;
-    min_value?: null;
-    max_value?: null;
-  };
-  type ApplicationCommandOptionsIntegerWithMinMax = Omit<ApplicationCommandOptionWithChoices<Constants["ApplicationCommandOptionTypes"]["INTEGER"]>, "choices" | "autocomplete">
-  & {
-    autocomplete?: false;
-    choices?: null;
-  };
-  // Boolean
-  type ApplicationCommandOptionsBoolean = ApplicationCommandOption<Constants["ApplicationCommandOptionTypes"]["BOOLEAN"]>;
-  // User
-  type ApplicationCommandOptionsUser = ApplicationCommandOption<Constants["ApplicationCommandOptionTypes"]["USER"]>;
-  // Channel
-  type ApplicationCommandOptionsChannel = ApplicationCommandOption<Constants["ApplicationCommandOptionTypes"]["CHANNEL"]> & { channel_types?: ChannelTypes };
-  // Role
-  type ApplicationCommandOptionsRole = ApplicationCommandOption<Constants["ApplicationCommandOptionTypes"]["ROLE"]>;
-  // Mentionable
-  type ApplicationCommandOptionsMentionable = ApplicationCommandOption<Constants["ApplicationCommandOptionTypes"]["MENTIONABLE"]>;
-  // Number
-  type ApplicationCommandOptionsNumber = ApplicationCommandOptionsNumberWithAutocomplete | ApplicationCommandOptionsNumberWithoutAutocomplete | ApplicationCommandOptionsNumberWithMinMax;
-  type ApplicationCommandOptionsNumberWithAutocomplete = Omit<ApplicationCommandOptionWithChoices<Constants["ApplicationCommandOptionTypes"]["NUMBER"]>, "choices" | "min_value" | "max_value">
-  & { autocomplete: true };
-  type ApplicationCommandOptionsNumberWithoutAutocomplete = Omit<ApplicationCommandOptionWithChoices<Constants["ApplicationCommandOptionTypes"]["NUMBER"]>, "autocomplete" | "min_value" | "max_value">
-  & {
-    autocomplete?: false;
-    min_value?: null;
-    max_value?: null;
-  };
-  type ApplicationCommandOptionsNumberWithMinMax = Omit<ApplicationCommandOptionWithChoices<Constants["ApplicationCommandOptionTypes"]["NUMBER"]>, "choices" | "autocomplete">
-  & {
-    autocomplete?: false;
-    choices?: null;
-  };
+  interface ApplicationCommandOptionSubCommandGroup {
+    type: Constants["ApplicationCommandOptionTypes"]["SUB_COMMAND_GROUP"];
+    name: string;
+    description: string;
+    options?: (ApplicationCommandOptionSubCommand | ApplicationCommandOptionWithValue)[];
+  }
 
-  interface ApplicationCommand<T extends (Constants["ApplicationCommandTypes"])[keyof Constants["ApplicationCommandTypes"]]
-  = (Constants["ApplicationCommandTypes"])[keyof Constants["ApplicationCommandTypes"]]> {
+  type ApplicationCommandOptionString = ApplicationCommandOptionGeneric<Constants["ApplicationCommandOptionTypes"]["STRING"]> & (ApplicationCommandOptionAutocomplete | ApplicationCommandOptionChoices<Constants["ApplicationCommandOptionTypes"]["STRING"]>);
+  type ApplicationCommandOptionInteger = ApplicationCommandOptionGeneric<Constants["ApplicationCommandOptionTypes"]["INTEGER"]> & (ApplicationCommandOptionAutocomplete | ApplicationCommandOptionChoices<Constants["ApplicationCommandOptionTypes"]["INTEGER"]> | ApplicationCommandOptionMinMax);
+  type ApplicationCommandOptionBoolean = ApplicationCommandOptionGeneric<Constants["ApplicationCommandOptionTypes"]["BOOLEAN"]>;
+  type ApplicationCommandOptionUser = ApplicationCommandOptionGeneric<Constants["ApplicationCommandOptionTypes"]["USER"]>;
+  type ApplicationCommandOptionChannel = ApplicationCommandOptionGeneric<Constants["ApplicationCommandOptionTypes"]["CHANNEL"]> & { channel_types?: number[] };
+  type ApplicationCommandOptionRole = ApplicationCommandOptionGeneric<Constants["ApplicationCommandOptionTypes"]["ROLE"]>;
+  type ApplicationCommandOptionMentionable = ApplicationCommandOptionGeneric<Constants["ApplicationCommandOptionTypes"]["MENTIONABLE"]>;
+  type ApplicationCommandOptionNumber = ApplicationCommandOptionGeneric<Constants["ApplicationCommandOptionTypes"]["NUMBER"]> & (ApplicationCommandOptionAutocomplete | ApplicationCommandOptionChoices<Constants["ApplicationCommandOptionTypes"]["NUMBER"]> | ApplicationCommandOptionMinMax);
+
+
+  interface ApplicationCommand<T extends ApplicationCommandType = ApplicationCommandType> {
     id: string;
     application_id: string;
     guild_id?: string;
     name: string;
     // I think never is the best we can do
     description: T extends Constants["ApplicationCommandTypes"]["CHAT_INPUT"] ? string : never;
-    options?: ApplicationCommandOptions[];
+    options?: ApplicationCommandOption[];
     type: T;
     defaultPermission?: boolean;
   }
@@ -286,11 +273,18 @@ declare namespace Eris {
     channel_id: string;
     webhook_id: string;
   }
+  interface ChannelPosition {
+    id: string;
+    position: number;
+    lockPermissions?: boolean;
+    parentID?: string;
+  }
   interface CreateChannelOptions {
     bitrate?: number;
     nsfw?: boolean;
     parentID?: string;
     permissionOverwrites?: Overwrite[];
+    position?: number;
     rateLimitPerUser?: number;
     reason?: string;
     topic?: string;
@@ -436,6 +430,7 @@ declare namespace Eris {
     decodeReasons?: boolean;
     disableLatencyCompensation?: boolean;
     domain?: string;
+    https?: boolean;
     latencyThreshold?: number;
     ratelimiterOffset?: number;
     requestTimeout?: number;
@@ -716,7 +711,7 @@ declare namespace Eris {
     channelRecipientAdd: [channel: GroupChannel, user: User];
     channelRecipientRemove: [channel: GroupChannel, user: User];
     channelUpdate: [channel: AnyGuildChannel, oldChannel: OldGuildChannel | OldGuildTextChannel | OldGuildVoiceChannel]
-    | [channel: GroupChannel, oldChannel: OldGroupChannel];
+      | [channel: GroupChannel, oldChannel: OldGroupChannel];
     connect: [id: number];
     debug: [message: string, id?: number];
     disconnect: [];
@@ -740,7 +735,7 @@ declare namespace Eris {
     guildUnavailable: [guild: UnavailableGuild];
     guildUpdate: [guild: Guild, oldGuild: OldGuild];
     hello: [trace: string[], id: number];
-    interactionCreate: [interaction: PingInteraction | CommandInteraction | ComponentInteraction | AutocompleteInteraction | ModalSubmitInteraction | UnknownInteraction];
+    interactionCreate: [interaction: CommandInteraction | ComponentInteraction | AutocompleteInteraction | ModalSubmitInteraction];
     inviteCreate: [guild: Guild, invite: Invite];
     inviteDelete: [guild: Guild, invite: Invite];
     messageCreate: [message: Message<PossiblyUncachedTextableChannel>];
@@ -779,6 +774,11 @@ declare namespace Eris {
     voiceStateUpdate: [member: Member, oldState: OldVoiceState];
     warn: [message: string, id?: number];
     webhooksUpdate: [data: WebhookData];
+    guildScheduledEventCreate: [event: GuildEvent];
+    guildScheduledEventUpdate: [event: GuildEvent, oldEvent: GuildEventOptions | null];
+    guildScheduledEventDelete: [event: GuildEvent];
+    guildScheduledEventUserAdd: [event: GuildEvent | string, user: User | string];
+    guildScheduledEventUserRemove: [event: GuildEvent | string, user: User | string];
   }
   interface ClientEvents extends EventListeners {
     shardDisconnect: [err: Error | undefined, id: number];
@@ -1168,7 +1168,7 @@ declare namespace Eris {
 
   interface InteractionButton extends ButtonBase {
     custom_id: string;
-    style: Constants["ButtonStyles"][Exclude<keyof Constants["ButtonStyles"], "LINK">];
+    style: ButtonStyleNormal;
   }
   interface MessageActivity {
     party_id?: string;
@@ -1473,6 +1473,22 @@ declare namespace Eris {
     team_id: string;
     user: PartialUser;
   }
+  interface GuildEventMetadata {
+    location?: string;
+  }
+  interface GuildEventOptions {
+    name: string;
+    channelID: string;
+    entityMetadata: GuildEventMetadata;
+    privacyLevel: GuildEventPrivacyLevel;
+    scheduledStartTime: Date;
+    scheduledEndTime: Date;
+    description: string;
+    entityType: GuildEventEntityTypes;
+  }
+  interface GuildEventEditOptions extends GuildEventOptions {
+    status: GuildEventStatus;
+  }
   interface Constants {
     GATEWAY_VERSION: 9;
     REST_VERSION: 9;
@@ -1700,9 +1716,10 @@ declare namespace Eris {
       directMessages:         4096;
       directMessageReactions: 8192;
       directMessageTyping:    16384;
-      allNonPrivileged:       32509;
+      guildScheduledEvents:   65536;
+      allNonPrivileged:       98045;
       allPrivileged:          258;
-      all:                    32767;
+      all:                    98303;
     };
     InteractionResponseTypes: {
       PONG:                                    1;
@@ -1839,10 +1856,10 @@ declare namespace Eris {
       sendMessagesInThreads:   274877906944n;
       startEmbeddedActivities: 549755813888n;
       moderateMembers:         1099511627776n;
-      allGuild:                1101592527038n;
+      allGuild:                1110182461630n;
       allText:                 518349388881n;
       allVoice:                554385278737n;
-      all:                     1228360646655n;
+      all:                     2181843386367n;
     };
     PremiumTiers: {
       NONE:   0;
@@ -1955,6 +1972,22 @@ declare namespace Eris {
       CLIENT_DISCONNECT:   13;
       /** @deprecated */
       DISCONNECT:          13;
+    };
+    GuildEventStatus: {
+      SCHEDULED: 1;
+      ACTIVE:	2;
+      COMPLETED: 3;
+      CANCELED: 4;
+    };
+    GuildEventEntityTypes: {
+      NONE: 0;
+      STAGE_INSTANCE: 1;
+      VOICE: 2;
+      LOCATION: 3;
+    };
+    GuildEventPrivacyLevel: {
+      PUBLIC: 1;
+      GUILD_ONLY: 2;
     };
     WebhookTypes: {
       INCOMING:         1;
@@ -2269,10 +2302,11 @@ declare namespace Eris {
     createGuild(name: string, options?: CreateGuildOptions): Promise<Guild>;
     createGuildCommand(guildID: string, command: ApplicationCommandStructure): Promise<ApplicationCommand>;
     createGuildEmoji(guildID: string, options: EmojiOptions, reason?: string): Promise<Emoji>;
+    createGuildEvent(guildID: string, event: GuildEventOptions): Promise<GuildEvent>;
     createGuildFromTemplate(code: string, name: string, icon?: string): Promise<Guild>;
     createGuildSticker(guildID: string, options: CreateStickerOptions, reason?: string): Promise<Sticker>;
     createGuildTemplate(guildID: string, name: string, description?: string | null): Promise<GuildTemplate>;
-    createInteractionResponse(interactionID: string, interactionToken: string, options: InteractionOptions, file?: FileContent | FileContent[]): Promise<void>;
+    createInteractionResponse(interactionID: string, interactionToken: string, options: InteractionResponse, file?: FileContent | FileContent[]): Promise<void>;
     createMessage(channelID: string, content: MessageContent, file?: FileContent | FileContent[]): Promise<Message>;
     createRole(guildID: string, options?: RoleOptions | Role, reason?: string): Promise<Role>;
     createStageInstance(channelID: string, options: StageInstanceOptions): Promise<StageInstance>;
@@ -2286,6 +2320,7 @@ declare namespace Eris {
     deleteGuildCommand(guildID: string, commandID: string): Promise<void>;
     deleteGuildDiscoverySubcategory(guildID: string, categoryID: string, reason?: string): Promise<void>;
     deleteGuildEmoji(guildID: string, emojiID: string, reason?: string): Promise<void>;
+    deleteGuildEvent(guildID: string, eventID: string): Promise<void>;
     deleteGuildIntegration(guildID: string, integrationID: string): Promise<void>;
     deleteGuildSticker(guildID: string, stickerID: string, reason?: string): Promise<void>;
     deleteGuildTemplate(guildID: string, code: string): Promise<GuildTemplate>;
@@ -2319,6 +2354,7 @@ declare namespace Eris {
     editCommand(commandID: string, command: ApplicationCommandStructure): Promise<ApplicationCommand>;
     editCommandPermissions(guildID: string, commandID: string, permissions: ApplicationCommandPermissions[]): Promise<GuildApplicationCommandPermissions>;
     editGuild(guildID: string, options: GuildOptions, reason?: string): Promise<Guild>;
+    editGuildChannelPositions(guildID: string, channelPositions: ChannelPosition[], reason?: string): Promise<void>;
     editGuildCommand(guildID: string, commandID: string, command: ApplicationCommandStructure): Promise<ApplicationCommand>;
     editGuildDiscovery(guildID: string, options?: DiscoveryOptions): Promise<DiscoveryMetadata>;
     editGuildEmoji(
@@ -2327,6 +2363,7 @@ declare namespace Eris {
       options: { name?: string; roles?: string[] },
       reason?: string
     ): Promise<Emoji>;
+    editGuildEvent(event: GuildEventEditOptions, eventID: string): Promise<GuildEvent>;
     editGuildIntegration(guildID: string, integrationID: string, options: IntegrationOptions): Promise<void>;
     editGuildMember(guildID: string, memberID: string, options: MemberOptions, reason?: string): Promise<Member>;
     editGuildSticker(guildID: string, stickerID: string, options?: EditStickerOptions, reason?: string): Promise<Sticker>;
@@ -2430,6 +2467,7 @@ declare namespace Eris {
     getRESTGuildChannels(guildID: string): Promise<AnyGuildChannel[]>;
     getRESTGuildEmoji(guildID: string, emojiID: string): Promise<Emoji>;
     getRESTGuildEmojis(guildID: string): Promise<Emoji[]>;
+    getRESTGuildEvent(guildID: string, eventID: string): Promise<GuildEvent>;
     getRESTGuildMember(guildID: string, memberID: string): Promise<Member>;
     getRESTGuildMembers(guildID: string, options?: GetRESTGuildMembersOptions): Promise<Member[]>;
     /** @deprecated */
@@ -2489,6 +2527,8 @@ declare namespace Eris {
     leaveGuild(guildID: string): Promise<void>;
     leaveThread(channelID: string, userID?: string): Promise<void>;
     leaveVoiceChannel(channelID: string): void;
+    listGuildEvents(guildID: string, withUserCount: boolean): Promise<Array<GuildEvent>>;
+    listGuildEventUsers(guildID: string, eventID: string): void;
     off<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
     off(event: string, listener: (...args: any[]) => void): this;
     once<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
@@ -2660,6 +2700,7 @@ declare namespace Eris {
     discoverySplashURL: string | null;
     emojiCount?: number;
     emojis: Emoji[];
+    events: Collection<GuildEvent>;
     explicitContentFilter: ExplicitContentFilter;
     features: GuildFeatures[];
     icon: string | null;
@@ -2731,6 +2772,7 @@ declare namespace Eris {
     createChannel(name: string, type?: number, reason?: string, options?: CreateChannelOptions | string): Promise<unknown>;
     createCommand(command: ApplicationCommandStructure): Promise<ApplicationCommand>;
     createEmoji(options: { image: string; name: string; roles?: string[] }, reason?: string): Promise<Emoji>;
+    createEvent(event: GuildEventOptions): Promise<GuildEvent>;
     createRole(options: RoleOptions | Role, reason?: string): Promise<Role>;
     createSticker(options: CreateStickerOptions, reason?: string): Promise<Sticker>;
     createTemplate(name: string, description?: string | null): Promise<GuildTemplate>;
@@ -2747,6 +2789,7 @@ declare namespace Eris {
     dynamicIconURL(format?: ImageFormat, size?: number): string | null;
     dynamicSplashURL(format?: ImageFormat, size?: number): string | null;
     edit(options: GuildOptions, reason?: string): Promise<Guild>;
+    editChannelPositions(channelPositions: ChannelPosition[], reason?: string): Promise<void>;
     editCommand(commandID: string, command: ApplicationCommandStructure): Promise<ApplicationCommand>;
     editCommandPermissions(permissions: ApplicationCommandPermissions[]): Promise<GuildApplicationCommandPermissions[]>;
     editDiscovery(options?: DiscoveryOptions): Promise<DiscoveryMetadata>;
@@ -2782,6 +2825,7 @@ declare namespace Eris {
     getRESTChannels(): Promise<AnyGuildChannel[]>;
     getRESTEmoji(emojiID: string): Promise<Emoji>;
     getRESTEmojis(): Promise<Emoji[]>;
+    getRESTEvent(eventID: string): Promise<GuildEvent>;
     getRESTMember(memberID: string): Promise<Member>;
     getRESTMembers(options?: GetRESTGuildMembersOptions): Promise<Member[]>;
     /** @deprecated */
@@ -2799,6 +2843,8 @@ declare namespace Eris {
     kickMember(userID: string, reason?: string): Promise<void>;
     leave(): Promise<void>;
     leaveVoiceChannel(): void;
+    listEvents(withUserCount: boolean): Promise<Array<GuildEvent>>;
+    listEventUsers(eventID: string): void;
     permissionsOf(memberID: string | Member | MemberRoles): Permission;
     pruneMembers(options?: PruneMemberOptions): Promise<number>;
     removeMemberRole(memberID: string, roleID: string, reason?: string): Promise<void>;
@@ -2921,7 +2967,9 @@ declare namespace Eris {
   export class Interaction extends Base {
     acknowledged: boolean;
     applicationID: string;
+    guildLocale?: string;
     id: string;
+    locale?: string;
     token: string;
     type: number;
     version: number;
@@ -2930,6 +2978,8 @@ declare namespace Eris {
 
   export class PingInteraction extends Interaction {
     type: Constants["InteractionTypes"]["PING"];
+    guildLocale: never;
+    locale: never;
     acknowledge(): Promise<void>;
     pong(): Promise<void>;
   }
@@ -2943,20 +2993,22 @@ declare namespace Eris {
       target_id?: string;
       resolved?: {
         users?: Collection<User>;
-        members?: Collection<Omit<Member, "user" | "deaf" | "mute">>;
+        members?: Collection<Omit<Member, "deaf" | "mute">>;
         roles?: Collection<Role>;
         channels?: Collection<PartialChannel>;
         messages?: Collection<Message>;
       };
-      options?: InteractionDataOptions[];
+      options?: InteractionDataOption[];
     };
     guildID?: string;
+    guildLocale?: string;
+    locale: string;
     member?: Member;
     type: Constants["InteractionTypes"]["APPLICATION_COMMAND"];
     user?: User;
     acknowledge(flags?: number): Promise<void>;
     createFollowup(content: string | InteractionContent, file?: FileContent | FileContent[]): Promise<Message>;
-    createMessage(content: string | InteractionContent , file?: FileContent | FileContent[]): Promise<void>;
+    createMessage(content: string | InteractionContent, file?: FileContent | FileContent[]): Promise<void>;
     createModal(content: InteractionModalContent): Promise<void>;
     defer(flags?: number): Promise<void>;
     deleteMessage(messageID: string): Promise<void>;
@@ -2981,6 +3033,8 @@ declare namespace Eris {
     channel: T;
     data: ComponentInteractionButtonData | ComponentInteractionSelectMenuData;
     guildID?: string;
+    guildLocale?: string;
+    locale: string;
     member?: Member;
     message: Message;
     type: Constants["InteractionTypes"]["MESSAGE_COMPONENT"];
@@ -3005,9 +3059,11 @@ declare namespace Eris {
       name: string;
       type: Constants["ApplicationCommandTypes"]["CHAT_INPUT"];
       target_id?: string;
-      options: InteractionDataOptions[];
+      options: InteractionDataOption[];
     };
     guildID?: string;
+    guildLocale?: string;
+    locale: string;
     member?: Member;
     type: Constants["InteractionTypes"]["APPLICATION_COMMAND_AUTOCOMPLETE"];
     user?: User;
@@ -3033,28 +3089,6 @@ declare namespace Eris {
     editOriginalMessage(content: string | InteractionEditContent, file?: FileContent | FileContent[]): Promise<Message>;
     editParent(content: InteractionEditContent, file?: FileContent | FileContent[]): Promise<void>;
     getOriginalMessage(): Promise<Message>
-  }
-  export class UnknownInteraction<T extends PossiblyUncachedTextable = TextableChannel> extends Interaction {
-    channel?: T;
-    data?: unknown;
-    guildID?: string;
-    member?: Member;
-    message?: Message;
-    type: number;
-    user?: User;
-    acknowledge(data: InteractionOptions): Promise<void>;
-    createFollowup(content: string | InteractionContent, file?: FileContent | FileContent[]): Promise<Message>;
-    createMessage(content: string | InteractionContent, file?: FileContent | FileContent[]): Promise<void>;
-    defer(flags?: number): Promise<void>;
-    deferUpdate(): Promise<void>;
-    deleteMessage(messageID: string): Promise<void>;
-    deleteOriginalMessage(): Promise<void>;
-    editMessage(messageID: string, content: string | InteractionEditContent, file?: FileContent | FileContent[]): Promise<Message>;
-    editOriginalMessage(content: string | InteractionEditContent, file?: FileContent | FileContent[]): Promise<Message>;
-    editParent(content: InteractionEditContent, file?: FileContent | FileContent[]): Promise<void>;
-    getOriginalMessage(): Promise<Message>
-    pong(): Promise<void>;
-    result(choices: ApplicationCommandOptionChoice[]): Promise<void>;
   }
 
   // If CT (count) is "withMetadata", it will not have count properties
@@ -3714,6 +3748,26 @@ declare namespace Eris {
     sessionID: string | null;
     suppress: boolean;
     constructor(data: BaseData);
+  }
+
+  export class GuildEvent extends Base {
+    channelID: string;
+    description?: string;
+    entityID: string;
+    entityMetadata: GuildEventMetadata;
+    entityType: GuildEventEntityTypes;
+    guildID: string;
+    id: string;
+    name: string;
+    privacyLevel: GuildEventPrivacyLevel;
+    scheduledEndTime: number;
+    scheduledStartTime: number;
+    status: GuildEventStatus;
+    creator?: User;
+    userCount?: number;
+    delete(): Promise<void>;
+    edit(event: GuildEventEditOptions): Promise<GuildEvent>;
+    listUsers(): void;
   }
 }
 
