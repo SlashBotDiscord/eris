@@ -69,7 +69,7 @@ declare namespace Eris {
   type GuildIntegrationExpireBehavior = Constants["GuildIntegrationExpireBehavior"][keyof Constants["GuildIntegrationExpireBehavior"]];
 
   // Message
-  type ActionRowComponents = Button | SelectMenu | TextInput;
+  type ActionRowComponents = Button | SelectMenu;
   type Button = InteractionButton | URLButton;
   type ButtonStyles = Constants["ButtonStyles"][keyof Constants["ButtonStyles"]];
   type ButtonStyleNormal = Exclude<ButtonStyles, ButtonStyleLink>;
@@ -1341,6 +1341,16 @@ declare namespace Eris {
     locked: boolean;
   }
 
+  // Modals
+  interface ModalSubmitInteractionDataComponents {
+    components: (Pick<TextInput, "custom_id" | "type"> & { value: string })[];
+    type: Constants["ComponentTypes"]["ACTION_ROW"];
+  }
+  interface ModalSubmitInteractionData {
+    custom_id: string;
+    components: ModalSubmitInteractionDataComponents[];
+  }
+
   // Voice
   interface JoinVoiceChannelOptions {
     opusOnly?: boolean;
@@ -1601,10 +1611,6 @@ declare namespace Eris {
       BUTTON:      2;
       SELECT_MENU: 3;
       TEXT_INPUT:  4;
-    };
-    TextInputStyles: {
-      SHORT:     1;
-      PARAGRAPH: 2;
     };
     ConnectionVisibilityTypes: {
       NONE:     0;
@@ -1905,6 +1911,10 @@ declare namespace Eris {
       ALL_MESSAGES:   2;
       ONLY_MENTIONS:  4;
       NO_MESSAGES:    8;
+    };
+    TextInputStyles: {
+      SHORT:     1;
+      PARAGRAPH: 2;
     };
     UserFlags: {
       NONE:                         0;
@@ -3059,15 +3069,6 @@ declare namespace Eris {
     user?: User;
     acknowledge(choices: ApplicationCommandOptionChoice[]): Promise<void>;
     result(choices: ApplicationCommandOptionChoice[]): Promise<void>;
-  }
-
-  interface ModalSubmitInteractionDataComponents {
-    components: (Pick<TextInput, "custom_id" | "type"> & { value: string })[];
-    type: Constants["ComponentTypes"]["ACTION_ROW"];
-  }
-  interface ModalSubmitInteractionData {
-    custom_id: string;
-    components: ModalSubmitInteractionDataComponents[];
   }
 
   export class ModalSubmitInteraction<T extends PossiblyUncachedTextable = TextableChannel> extends Interaction {
