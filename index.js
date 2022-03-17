@@ -63,6 +63,6 @@ Eris.VoiceState = require("./lib/structures/VoiceState");
 Eris.GuildEvent = require("./lib/structures/GuildEvent");
 
 // eris-additions
-Eris.EmbedBuilder = require('./lib/util/EmbedBuilder')
+Eris.EmbedBuilder = require("./lib/util/EmbedBuilder");
 
 module.exports = Eris;
