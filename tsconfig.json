@@ -11,7 +11,9 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
+        "allowJs": true,
         "checkJs": true,
+        "esModuleInterop": true,
         "moduleResolution": "node",
     },
     "files": [
