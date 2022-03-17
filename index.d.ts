@@ -3769,6 +3769,32 @@ declare namespace Eris {
     edit(event: GuildEventEditOptions): Promise<GuildEvent>;
     listUsers(): void;
   }
+
+  // eris-additions
+  export class EmbedBuilder implements EmbedOptions {
+    author?: EmbedAuthorOptions;
+    color?: number;
+    description?: string;
+    fields: EmbedField[];
+    footer?: EmbedFooterOptions;
+    image?: EmbedImageOptions;
+    thumbnail?: EmbedImageOptions;
+    timestamp?: Date | string;
+    title?: string;
+    url?: string;
+    constructor(data: EmbedOptions)
+    setAuthor(name: string, icon?: string, url?: string): this
+    setColor(color: string | number): this
+    setdescription(description: string): this
+    addField(name: string, value: string, inline?: boolean): this
+    setFooter(text: string, icon?: string): this
+    setImage(url: string): this
+    setThumbnail(url: string): this
+    setTimestamp(timestamp: Date): this
+    setTitle(title: string): this
+    setURL(url: string): this
+    toJSON(): EmbedOptions
+  }
 }
 
 export = Eris;
