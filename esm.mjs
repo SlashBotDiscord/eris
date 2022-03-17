@@ -56,8 +56,6 @@ export const {
     User,
     VERSION,
     VoiceChannel,
-    VoiceConnection,
-    VoiceConnectionManager,
     VoiceState,
     GuildEvent,
 } = Eris;
